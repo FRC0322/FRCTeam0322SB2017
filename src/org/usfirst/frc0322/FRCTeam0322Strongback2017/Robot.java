@@ -13,6 +13,8 @@ import org.strongback.components.ui.Gamepad;
 import org.strongback.drive.TankDrive;
 import org.strongback.hardware.Hardware;
 
+import com.analog.adis16448.frc.ADIS16448_IMU;
+
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -27,10 +29,12 @@ public class Robot extends IterativeRobot {
 	private static final int RF_MOTOR_PORT = 1;
 	private static final int LR_MOTOR_PORT = 2;
 	private static final int RR_MOTOR_PORT = 3;
-	
+
+	/*
 	private static final SPI.Port GYRO_PORT = SPI.Port.kOnboardCS0;
 	private static final SPI.Port ACCEL_PORT = SPI.Port.kOnboardCS1;
 	private static final Range ACCEL_RANGE = Range.k2G;
+	*/
 	
 	private FlightStick leftDriveStick, rightDriveStick;
 	private Gamepad manipulatorStick;
@@ -38,8 +42,9 @@ public class Robot extends IterativeRobot {
 	private TankDrive drivetrain;
 	private ContinuousRange leftSpeed, rightSpeed;
 	
-	private ThreeAxisAccelerometer accel;
-	private AngleSensor gyro;
+	//private ThreeAxisAccelerometer accel;
+	//private AngleSensor gyro;
+	private ADIS16448_IMU imu;
 	
 	public static UsbCamera cameraServer;
 
@@ -58,8 +63,9 @@ public class Robot extends IterativeRobot {
     	manipulatorStick = Hardware.HumanInterfaceDevices.xbox360(MANIPULATOR_STICK_PORT);
     	
     	//Setup sensors
-    	accel = Hardware.Accelerometers.accelerometer(ACCEL_PORT, ACCEL_RANGE);
-    	gyro = Hardware.AngleSensors.gyroscope(GYRO_PORT);
+    	imu = new ADIS16448_IMU();
+    	//accel = Hardware.Accelerometers.accelerometer(ACCEL_PORT, ACCEL_RANGE);
+    	//gyro = Hardware.AngleSensors.gyroscope(GYRO_PORT);
     	VoltageSensor battery = Hardware.powerPanel().getVoltageSensor();
     	CurrentSensor current = Hardware.powerPanel().getTotalCurrentSensor();
     	
@@ -95,15 +101,18 @@ public class Robot extends IterativeRobot {
     
 	@Override
     public void disabledPeriodic() {
-		//debugPrint();
+		debugPrint();
     }
 	
 	public void debugPrint() {
-		System.out.println("Gyro Angle " + gyro.getAngle());
+		System.out.println("Gyro Angle " + imu.getAngle());
     	System.out.println();
-    	System.out.println("X-Axis " + accel.getXDirection().getAcceleration());
-    	System.out.println("Y-Axis " + accel.getYDirection().getAcceleration());
-    	System.out.println("Z-Axis " + accel.getZDirection().getAcceleration());
+    	System.out.println("X-Axis Acceleration " + imu.getAccelX());
+    	System.out.println("Y-Axis Acceleration " + imu.getAccelY());
+    	System.out.println("Z-Axis Acceleration " + imu.getAccelZ());
+    	System.out.println();
+    	System.out.println("Temperature " + imu.getTemperature());
+    	System.out.println("Pressure  " + imu.getBarometricPressure());
     	System.out.println();
     	System.out.println();
 	}
