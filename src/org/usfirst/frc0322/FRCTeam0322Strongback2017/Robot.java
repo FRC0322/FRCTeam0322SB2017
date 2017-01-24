@@ -2,6 +2,7 @@
 package org.usfirst.frc0322.FRCTeam0322Strongback2017;
 
 import org.strongback.Strongback;
+import org.strongback.SwitchReactor;
 import org.strongback.components.AngleSensor;
 import org.strongback.components.CurrentSensor;
 import org.strongback.components.Motor;
@@ -13,13 +14,13 @@ import org.strongback.components.ui.Gamepad;
 import org.strongback.drive.TankDrive;
 import org.strongback.hardware.Hardware;
 
-import com.analog.adis16448.frc.ADIS16448_IMU;
-
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer.Range;
+
+import com.analog.adis16448.frc.ADIS16448_IMU;
 
 public class Robot extends IterativeRobot {
 	private static final int LEFT_DRIVESTICK_PORT = 0;
@@ -29,7 +30,11 @@ public class Robot extends IterativeRobot {
 	private static final int RF_MOTOR_PORT = 1;
 	private static final int LR_MOTOR_PORT = 2;
 	private static final int RR_MOTOR_PORT = 3;
-
+	private static final int SHOOTER_MOTOR_PORT = 4;
+	
+	private static final int LIFT_MOTOR_CAN = 1;
+	private static final int PICKUP_MOTOR_CAN = 2;
+	
 	/*
 	private static final SPI.Port GYRO_PORT = SPI.Port.kOnboardCS0;
 	private static final SPI.Port ACCEL_PORT = SPI.Port.kOnboardCS1;
@@ -41,6 +46,9 @@ public class Robot extends IterativeRobot {
 	
 	private TankDrive drivetrain;
 	private ContinuousRange leftSpeed, rightSpeed;
+	
+	private SwitchReactor lift, pickup, shooter;
+	private Motor liftMotor, pickupMotor, shooterMotor;
 	
 	//private ThreeAxisAccelerometer accel;
 	//private AngleSensor gyro;
@@ -56,6 +64,11 @@ public class Robot extends IterativeRobot {
     	Motor rightDriveMotors = Motor.compose(Hardware.Motors.talon(RF_MOTOR_PORT),
     											Hardware.Motors.talon(RR_MOTOR_PORT));
     	drivetrain = new TankDrive(leftDriveMotors, rightDriveMotors.invert());
+    	
+    	//Setup Manipulators
+    	liftMotor = Hardware.Motors.talonSRX(LIFT_MOTOR_CAN);
+    	pickupMotor = Hardware.Motors.talonSRX(PICKUP_MOTOR_CAN);
+    	shooterMotor = Hardware.Motors.talon(SHOOTER_MOTOR_PORT);
     	
     	//Setup joysticks
     	leftDriveStick = Hardware.HumanInterfaceDevices.logitechAttack3D(LEFT_DRIVESTICK_PORT);
@@ -74,6 +87,11 @@ public class Robot extends IterativeRobot {
     	leftSpeed = leftDriveStick.getPitch().scale(sensitivity::read);
     	rightSpeed = rightDriveStick.getPitch().scale(sensitivity::read);
     	
+    	//Setup Switches
+    	lift = Strongback.switchReactor();
+    	pickup = Strongback.switchReactor();
+    	shooter = Strongback.switchReactor();
+    	
     	//Setup Camera
     	cameraServer = CameraServer.getInstance().startAutomaticCapture();
     	
@@ -89,7 +107,17 @@ public class Robot extends IterativeRobot {
     	Strongback.configure().recordNoEvents().recordDataToFile("FRC0322Java-");
     	//Strongback.configure().recordNoEvents().recordNoData();
     }
-
+	@Override
+    public void autonomousInit() {
+        // Start Strongback functions ...
+        Strongback.start();
+    }
+    
+	@Override
+    public void autonomousPeriodic() {
+    	debugPrint();
+    }
+    
     @Override
     public void teleopInit() {
         // Start Strongback functions ...
@@ -100,6 +128,20 @@ public class Robot extends IterativeRobot {
     public void teleopPeriodic() {
     	//This line runs the drivetrain
     	drivetrain.tank(leftSpeed.read(), rightSpeed.read());
+    	
+    	//This section controls the lift
+    	lift.onTriggered(manipulatorStick.getA(), ()->Strongback.submit(new RunLiftMotor(liftMotor)));
+    	lift.onUntriggered(manipulatorStick.getA(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
+    	
+    	//This section controls the pickup mechanism
+    	pickup.onTriggered(manipulatorStick.getB(), ()->Strongback.submit(new RunPickupMotor(pickupMotor)));
+    	pickup.onUntriggered(manipulatorStick.getB(), ()->Strongback.submit(new StopPickupMotor(pickupMotor)));
+    	
+    	//This section controls the shooter mechanism
+    	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor)));
+    	shooter.onUntriggered(manipulatorStick.getX(), ()->Strongback.submit(new StopShooterMotor(shooterMotor)));
+    	
+    	debugPrint();
     }
 
     @Override
