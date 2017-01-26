@@ -12,5 +12,7 @@
 	<classpathentry kind="var" path="USERLIBS_DIR/strongback.jar"/>
 	<classpathentry kind="var" path="USERLIBS_DIR/TalonSRXLibJava.jar"/>
 	<classpathentry kind="var" path="USERLIBS_DIR/CANJaguar.jar"/>
+	<classpathentry kind="var" path="USERLIBS_DIR/niVisionWPI.jar"/>
+	<classpathentry kind="var" path="USERLIBS_DIR/sf2-frc.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

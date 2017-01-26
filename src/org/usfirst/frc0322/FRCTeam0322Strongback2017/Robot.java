@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer.Range;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.analog.adis16448.frc.ADIS16448_IMU;
 
@@ -141,6 +142,7 @@ public class Robot extends IterativeRobot {
     	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor)));
     	shooter.onUntriggered(manipulatorStick.getX(), ()->Strongback.submit(new StopShooterMotor(shooterMotor)));
     	
+    	SmartDashboard.putData("IMU", imu);
     	debugPrint();
     }
 
