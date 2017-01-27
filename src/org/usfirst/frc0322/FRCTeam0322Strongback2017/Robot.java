@@ -64,13 +64,13 @@ public class Robot extends IterativeRobot {
     											Hardware.Motors.talon(LR_MOTOR_PORT));
     	Motor rightDriveMotors = Motor.compose(Hardware.Motors.talon(RF_MOTOR_PORT),
     											Hardware.Motors.talon(RR_MOTOR_PORT));
-    	drivetrain = new TankDrive(leftDriveMotors, rightDriveMotors.invert());
-    	
+    	drivetrain = new TankDrive(leftDriveMotors.invert(), rightDriveMotors);
+    	/*
     	//Setup Manipulators
     	liftMotor = Hardware.Motors.talonSRX(LIFT_MOTOR_CAN);
     	pickupMotor = Hardware.Motors.talonSRX(PICKUP_MOTOR_CAN);
     	shooterMotor = Hardware.Motors.talon(SHOOTER_MOTOR_PORT);
-    	
+    	*/
     	//Setup joysticks
     	leftDriveStick = Hardware.HumanInterfaceDevices.logitechAttack3D(LEFT_DRIVESTICK_PORT);
     	rightDriveStick = Hardware.HumanInterfaceDevices.logitechAttack3D(RIGHT_DRIVESTICK_PORT);
@@ -105,8 +105,8 @@ public class Robot extends IterativeRobot {
 		.register("RightDriveStick", 1000, rightSpeed::read)
 		.register("Drive Sensitivity", 1000, sensitivity::read);
         
-    	Strongback.configure().recordNoEvents().recordDataToFile("FRC0322Java-");
-    	//Strongback.configure().recordNoEvents().recordNoData();
+    	//Strongback.configure().recordNoEvents().recordDataToFile("FRC0322Java-");
+    	Strongback.configure().recordNoEvents().recordNoData();
     }
 	@Override
     public void autonomousInit() {
@@ -129,7 +129,7 @@ public class Robot extends IterativeRobot {
     public void teleopPeriodic() {
     	//This line runs the drivetrain
     	drivetrain.tank(leftSpeed.read(), rightSpeed.read());
-    	
+    	/*
     	//This section controls the lift
     	lift.onTriggered(manipulatorStick.getA(), ()->Strongback.submit(new RunLiftMotor(liftMotor)));
     	lift.onUntriggered(manipulatorStick.getA(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
@@ -141,7 +141,7 @@ public class Robot extends IterativeRobot {
     	//This section controls the shooter mechanism
     	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor)));
     	shooter.onUntriggered(manipulatorStick.getX(), ()->Strongback.submit(new StopShooterMotor(shooterMotor)));
-    	
+    	*/
     	SmartDashboard.putData("IMU", imu);
     	debugPrint();
     }
